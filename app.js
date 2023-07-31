@@ -31,9 +31,9 @@ function addMarkersToMap(locations) {
 
     // Adicionar marcadores para cada localidade
     locations.forEach(location => {
-        const { LT, LG, NV } = location;
+        const { LT, LG, NV ,VL} = location;
         const marker = L.marker([LT, LG]).addTo(map);
-         marker.bindPopup(NV);
+          marker.bindPopup(`${NV} - ${VL}`);
     });
 }
 
