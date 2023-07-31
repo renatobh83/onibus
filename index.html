@@ -8,7 +8,7 @@
     /* Estilo do mapa */
 #map {
   width: 100%;
-  height: 90vh; /* Altura do mapa em 70% da altura da tela */
+  height: 90vh; /* Altura do mapa em 90% da altura da tela */
 }
 
 /* Estilo do campo de pesquisa */
@@ -34,12 +34,16 @@ button {
 
 
 /* Estilos responsivos */
+
+/* Estilos responsivos */
 @media (max-width: 768px) {
   #searchInput {
     width: 100%;
   }
+  #map{
+    height: 80vh;
+  }
 }
-
     </style>
     <!-- Por exemplo, o mapa do OpenStreetMap: -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
