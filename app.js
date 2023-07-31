@@ -29,7 +29,7 @@ function addMarkersToMap(locations) {
         }
     });
 
-    // Adicionar marcadores para cada localidade
+    // Adicionar marcadores para cada localidade e velocidade
     locations.forEach(location => {
         const { LT, LG, NV ,VL} = location;
         const marker = L.marker([LT, LG]).addTo(map);
