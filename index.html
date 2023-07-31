@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Exemplo de Mapa</title>
+    <style type="text/css">
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 2rem;
+        }
+        #map {
+            width: 80%;
+            height: 80vh;
+        }
+    </style>
+    <!-- Por exemplo, o mapa do OpenStreetMap: -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+    <div id="map"></div>
+    <div>
+        <input type="text" id="searchInput" placeholder="Digite sua pesquisa aqui" />
+        <button onclick="performSearch()">Pesquisar</button>
+    </div>
+   
+   </div>
+   
+    <!-- Inclua aqui o link para o arquivo JavaScript do mapa que você pretende usar -->
+    <!-- Por exemplo, o mapa do OpenStreetMap: -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
