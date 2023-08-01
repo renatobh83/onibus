@@ -48,7 +48,7 @@ function getCorMarcador(valor) {
 }
 
 function createMap(userLocation) {
-     const initialZoom = 16;
+     const initialZoom = 13;
      map = L.map('map').setView([userLocation.latitude, userLocation.longitude], initialZoom);
     // Usando o provedor de mapas da OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -72,10 +72,11 @@ function addMarkersToMap(locations,userLocation) {
         const marker = L.marker([LT, LG],{ icon: L.divIcon({ 
         	className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-6 h-6 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map);
           
-         marker.bindPopup(`${NV} - ${VL}`);
+         marker.bindPopup(`${NV} - ${VL}`)
          
- 	L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
-        	className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map);
+ 	  const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
+        	className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
+      posicao.bindPopup("Voce esta aqui").openPopup();
   
        
     });
