@@ -8,10 +8,27 @@ async function getCoordinatesFromAPI(linha) {
 async function getLinhaFromAPI(linha) {
     const response = await fetch(`https://bhtrans.vercel.app/linha/${linha}`);
     const data = await response.json();
-    console.log(data)
+    
     return data;
 }
 
+function getUserLocation() {
+    return new Promise((resolve, reject) => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude } = position.coords;
+                    resolve({ latitude, longitude });
+                },
+                error => {
+                    reject("Não foi possível obter a localização do usuário.");
+                }
+            );
+        } else {
+            reject("Geolocalização não está disponível no navegador.");
+        }
+    });
+}
 
 const coresMarcadores = {};
 
@@ -30,15 +47,16 @@ function getCorMarcador(valor) {
   return coresMarcadores[valor];
 }
 
-function createMap() {
-         const initialZoom = 15;
-     map = L.map('map').setView(["-19.923030", "-43.925846"], initialZoom);
+function createMap(userLocation) {
+     const initialZoom = 16;
+     map = L.map('map').setView([userLocation.latitude, userLocation.longitude], initialZoom);
     // Usando o provedor de mapas da OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      
 }
 
 
-function addMarkersToMap(locations) {
+function addMarkersToMap(locations,userLocation) {
     // Limpar marcadores existentes
     map.eachLayer(layer => {
         if (layer instanceof L.Marker) {
@@ -52,10 +70,13 @@ function addMarkersToMap(locations) {
 
         const corMarcador = getCorMarcador(NV);
         const marker = L.marker([LT, LG],{ icon: L.divIcon({ 
-        	className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="marker-pin"></div>' }) })
+        	className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-6 h-6 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map);
           
          marker.bindPopup(`${NV} - ${VL}`);
-         marker.addTo(map);
+         
+ 	L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
+        	className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map);
+  
        
     });
 }
@@ -64,8 +85,10 @@ function addMarkersToMap(locations) {
 async function main() {
     try {
         const localizacoes = await getCoordinatesFromAPI("238")
-        createMap();
-        addMarkersToMap(localizacoes);
+         const userLocation = await getUserLocation();
+        createMap(userLocation);
+        addMarkersToMap(localizacoes, userLocation);
+
     } catch (error) {
         console.error('Erro ao obter dados da API:', error);
     }
@@ -78,19 +101,9 @@ async function performSearch() {
         return;
     }
     const localizacoes = await getCoordinatesFromAPI(searchQuery)
-     addMarkersToMap(localizacoes);
-}
-
-async function codigoLinha() {
-    const searchQuery = document.getElementById('searchInput-1').value.trim().toLowerCase();
-     // Verifique se o campo de pesquisa está vazio
-    console.log(searchQuery)
-    if (searchQuery === '') {
-        return;
-    }
-    const x = await getLinhaFromAPI(searchQuery)
-
-    //  addMarkersToMap(localizacoes);
+      const userLocation = await getUserLocation();
+     addMarkersToMap(localizacoes,userLocation);
+     createMap(userLocation);
 }
 
 
