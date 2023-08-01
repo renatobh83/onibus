@@ -3,72 +3,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Exemplo de Mapa</title>
-    <style type="text/css">
-    /* Estilo do mapa */
-#map {
-  width: 100%;
-  height: 90vh; /* Altura do mapa em 90% da altura da tela */
-}
-
-/* Estilo do campo de pesquisa */
-#searchInput {
-  width: 80%;
-  padding: 8px;
-  font-size: 16px;
-}
-
-/* Estilo dos botões de pesquisa */
-button {
-  padding: 8px 16px;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-/* Estilo da div de resultados */
-#searchResults {
-  margin-top: 20px;
-  font-size: 18px;
-}
-
-  .marker-pin {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-    }
-/* Estilos responsivos */
-
-/* Estilos responsivos */
-@media (max-width: 768px) {
-  #searchInput {
-    width: 100%;
-  }
-  #map{
-    height: 80vh;
-  }
-}
-    </style>
+    <title> Mapa Bhtrans</title>
     <!-- Por exemplo, o mapa do OpenStreetMap: -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+      <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-    <div id="map"></div>
-    <div>
-        <input type="text" id="searchInput" placeholder="Digite sua pesquisa aqui" />
-        <button onclick="performSearch()">Pesquisar</button>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto md:max-w-full p-2 h-auto grid grid-cols-1 gap-3 ">
+    <div class="  flex gap-3">
+        <input type="text" id="searchInput" placeholder="Digite sua pesquisa aqui" class="block p-2.5 w-30 z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" />
+        <button onclick="performSearch()" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5  dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Pesquisar</button>
     </div>
+     <div id="map"  style="height: 700px" class="rounded-lg"></div>
    
    </div>
    
     <!-- Inclua aqui o link para o arquivo JavaScript do mapa que você pretende usar -->
     <!-- Por exemplo, o mapa do OpenStreetMap: -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/chroma-js@2.1.1/chroma.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
