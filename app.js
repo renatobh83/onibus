@@ -1,5 +1,4 @@
 let map
-
 function getUserLocation() {
     return new Promise((resolve, reject) => {
         if ("geolocation" in navigator) {
