@@ -1,16 +1,4 @@
 let map
-async function getCoordinatesFromAPI(linha) {
-    const response = await fetch(`https://bhtrans.vercel.app/dados/${linha}/1`);
-    const data = await response.json();
-    return data;
-}
-
-async function getLinhaFromAPI(linha) {
-    const response = await fetch(`https://bhtrans.vercel.app/linha/${linha}`);
-    const data = await response.json();
-    
-    return data;
-}
 
 function getUserLocation() {
     return new Promise((resolve, reject) => {
@@ -31,6 +19,7 @@ function getUserLocation() {
 }
 
 const coresMarcadores = {};
+const ultimaPosicao  = {}
 
 
 function definirCorParaValor(valor) {
@@ -43,16 +32,30 @@ function definirCorParaValor(valor) {
 function getCorMarcador(valor) {
   // Define a cor do valor (caso ainda não exista)
   definirCorParaValor(valor);
-
   return coresMarcadores[valor];
 }
+function definirUltimaPosicao(valor, obj) {
+   
+  if (!ultimaPosicao.hasOwnProperty(valor)) {
+        ultimaPosicao[valor] = obj;
+  }
+   console.log(ultimaPosicao)    
+}
+function getPosicao(valor, obj) {
+  // Define a cor do valor (caso ainda não exista)
+  definirUltimaPosicao(valor, obj);
+  return ultimaPosicao[valor];
+}
 
-function createMap(userLocation) {
+
+async function createMap(userLocation) {
      const initialZoom = 13;
-     map = L.map('map').setView([userLocation.latitude, userLocation.longitude], initialZoom);
+     if(!map) {
+   
+     map = L.map('map',{trackResize: true}).setView(["-19.922913", "-43.925802"], initialZoom);
     // Usando o provedor de mapas da OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      
+    }    
 }
 
 
@@ -66,47 +69,47 @@ function addMarkersToMap(locations,userLocation) {
 
     // Adicionar marcadores para cada localidade e velocidade
     locations.forEach(location => {
-        const { LT, LG, NV ,VL} = location;
+        const { LT, LG, NV ,VL, NL} = location;
 
         const corMarcador = getCorMarcador(NV);
-        const marker = L.marker([LT, LG],{ icon: L.divIcon({ 
-        	className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-6 h-6 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map);
-          
-         marker.bindPopup(`${NV} - ${VL}`)
-         
- 	  const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
-        	className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
-      posicao.bindPopup("Voce esta aqui").openPopup();
-  
        
+     
+        const marker = L.marker([LT, LG],{ icon: L.divIcon({ 
+            className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>' }) }).addTo(map);
+          
+         marker.bindPopup(`${NV} - ${VL}`)  
     });
+     
 }
 
-// Função principal para iniciar o processo
-async function main() {
-    try {
-        const localizacoes = await getCoordinatesFromAPI("238")
-         const userLocation = await getUserLocation();
-        createMap(userLocation);
-        addMarkersToMap(localizacoes, userLocation);
 
-    } catch (error) {
-        console.error('Erro ao obter dados da API:', error);
-    }
-}
 
-async function performSearch() {
-    const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-     // Verifique se o campo de pesquisa está vazio
-    if (searchQuery === '') {
+//const urlWebSocket = 'ws://localhost:3001'; // Substitua pelo endereço do servidor WebSocket
+const urlWebSocket = 'wss://web-socket-server-bus.glitch.me/'
+
+const socket = new WebSocket(urlWebSocket);
+
+
+socket.onopen = function () {
+    console.log('Conexão estabelecida com o servidor WebSocket.');
+};
+
+socket.onmessage = async  function (event) {
+    console.log('Mensagem recebida do servidor:', event.data);
+     createMap();
+     addMarkersToMap(JSON.parse(event.data));   
+};
+
+socket.onerror = function (error) {
+    console.error('Erro ao conectar com o servidor WebSocket:', error);
+};
+
+function enviarMensagem() {
+    const mensagemInput = document.getElementById('mensagem');
+    if (mensagemInput.value === '') {
         return;
     }
-    const localizacoes = await getCoordinatesFromAPI(searchQuery)
-      const userLocation = await getUserLocation();
-     addMarkersToMap(localizacoes,userLocation);
-     createMap(userLocation);
+    const mensagem = mensagemInput.value;
+    socket.send(mensagem);
+    mensagemInput.value = ''; // Limpa o campo de entrada após enviar a mensagem
 }
-
-
-// Chame a função principal para iniciar o processo
-main();
