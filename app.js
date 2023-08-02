@@ -1,4 +1,5 @@
 let map
+
 function getUserLocation() {
     return new Promise((resolve, reject) => {
         if ("geolocation" in navigator) {
@@ -37,8 +38,7 @@ function definirUltimaPosicao(valor, obj) {
    
   if (!ultimaPosicao.hasOwnProperty(valor)) {
         ultimaPosicao[valor] = obj;
-  }
-   console.log(ultimaPosicao)    
+  }  
 }
 function getPosicao(valor, obj) {
   // Define a cor do valor (caso ainda não exista)
@@ -90,11 +90,13 @@ const socket = new WebSocket(urlWebSocket);
 
 
 socket.onopen = function () {
-    console.log('Conexão estabelecida com o servidor WebSocket.');
+    const btn = document.getElementById('btn')
+    btn.disabled = false
+    // console.log('Conexão estabelecida com o servidor WebSocket.');
 };
 
 socket.onmessage = async  function (event) {
-    console.log('Mensagem recebida do servidor:', event.data);
+    // console.log('Mensagem recebida do servidor:', event.data);
      createMap();
      addMarkersToMap(JSON.parse(event.data));   
 };
