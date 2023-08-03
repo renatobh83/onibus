@@ -1,14 +1,10 @@
-const urlWebSocket = 'ws://localhost:3001'; // Substitua pelo endereço do servidor WebSocket
-//const urlWebSocket = 'wss://web-socket-server-bus.glitch.me/'
+//const urlWebSocket = 'ws://localhost:3001'; // Substitua pelo endereço do servidor WebSocket
+const urlWebSocket = 'wss://web-socket-server-bus.glitch.me/'
 
 const socket = new WebSocket(urlWebSocket);
 
 let map
-
 let userLocation = {};
-
-
-
 async function getUserLocation() {
     return new Promise((resolve, reject) => {
         if ("geolocation" in navigator) {
@@ -39,7 +35,6 @@ async function getUserLocation() {
 main()
 const coresMarcadores = {};
 
-
 function definirCorParaValor(valor) {
   if (!coresMarcadores.hasOwnProperty(valor)) {
     // Gerar uma cor hexadecimal aleatória
@@ -53,7 +48,6 @@ function getCorMarcador(valor) {
   return coresMarcadores[valor];
 }
 
-
 async function createMap() {
     main()
     const initialZoom = 15;
@@ -61,10 +55,13 @@ async function createMap() {
         map = L.map('map',{trackResize: true})
         .setView([userLocation.latitude, userLocation.longitude], initialZoom);
         // Usando o provedor de mapas da OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        tileLayer.on('load', function() {
+        document.getElementById('loading').style.display = 'none';
+        });
+ 
     }    
 }
-
 
 function addMarkersToMap(locations) {
     // Limpar marcadores existentes
@@ -73,7 +70,6 @@ function addMarkersToMap(locations) {
             map.removeLayer(layer);
         }
     });
-
     // Adicionar marcadores para cada localidade e velocidade
     locations.forEach(location => {
         const { LT, LG, NV ,VL, NL} = location;
@@ -86,27 +82,23 @@ function addMarkersToMap(locations) {
             className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
         posicao.bindPopup("Voce esta aqui")
     });
-     
 }
-
 socket.onopen = function () {
     const btn = document.getElementById('btn')
     btn.disabled = false
     // console.log('Conexão estabelecida com o servidor WebSocket.');
 };
-
 socket.onmessage = async  function (event) {
     // console.log('Mensagem recebida do servidor:', event.data);
      createMap();
      addMarkersToMap(JSON.parse(event.data));   
 };
-
 socket.onerror = function (error) {
     console.error('Erro ao conectar com o servidor WebSocket:', error);
 };
-
 function enviarMensagem() {
     const mensagemInput = document.getElementById('mensagem');
+    document.getElementById('loading').style.display = 'block';
     if (mensagemInput.value === '') {
         return;
     }
