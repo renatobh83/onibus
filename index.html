@@ -6,28 +6,36 @@
        <title> Mapa Bhtrans</title>
        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
        <script src="https://cdn.tailwindcss.com"></script>
+         <style>
+    /* Posicionamento do resultado da pesquisa */
+    #resultado-pesquisa {
+      position: absolute;
+      background-color: #ffffff;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 8rem;
+      max-height: 250px; /* Altura máxima da lista de resultados */
+      overflow-y: auto; 
+      z-index: 1000; /* Z-index maior que o input para ficar sobreposto ao fundo */
+    }
+ 
+    #resultado-pesquisa li {
+      padding: 5px;
+      cursor: pointer;
+
+    }
+  </style>
    </head>
    <body class="bg-gray-800">
     <div class="w-screen h-screen px-4 py-3 flex flex-col">
-        <div class="flex gap-3 mb-2">
-            <input type="text" id="mensagem" placeholder="Digite sua pesquisa aqui" class="block p-2.5 w-30 z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " />
-            <button onclick="enviarMensagem()" id='btn' disabled class="text-gray-900 bg-white border cursor-pointer
-            disabled:cursor-not-allowed
-            disabled:text-gray-600/25
-            focus:outline-none 
-            focus:ring-gray-200 
-            focus:ring-4
-            hover:bg-gray-200
-            border-gray-300
-
-            font-medium 
-            rounded-lg 
-            text-sm 
-            px-5 
-            py-2.5 ">Pesquisar</button>
+        <div class="mb-2" >
+            <label for="input-pesquisa" class="text-sm text-gray-50 mr-2">Digite sua pesquisa:</label>
+            <input type="text" disabled id="input-pesquisa" class="p-2 rounded-lg w-32" oninput="filtrarOpcoes()" />
+            <ul id="resultado-pesquisa"></ul>
         </div>
         <div id="map" class="flex-1 rounded-lg"></div>
-        <div id="loading" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 10px;">
+        <div id="loading" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px;">
             Carregando o mapa...
         </div>
     </div>
