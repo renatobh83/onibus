@@ -1,7 +1,7 @@
 let map
-let userPosition = null
+let userLocation = null
 document.addEventListener("DOMContentLoaded", async function () {
- userPosition = await getUserLocation()
+ userLocation = await getUserLocation()
 })
 function getUserLocation() {
     return new Promise((resolve, reject) => {
@@ -54,7 +54,7 @@ async function createMap(userLocation) {
      const initialZoom = 13;
      if(!map) {
    
-     map = L.map('map',{trackResize: true}).setView([userPosition.latitude, userPosition.longitude], initialZoom);
+     map = L.map('map',{trackResize: true}).setView([userLocation.latitude, userLocation.longitude], initialZoom);
     // Usando o provedor de mapas da OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }    
@@ -80,6 +80,9 @@ function addMarkersToMap(locations,userLocation) {
             className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>' }) }).addTo(map);
           
          marker.bindPopup(`${NV} - ${VL}`)  
+      const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
+        	className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
+      posicao.bindPopup("Voce esta aqui").openPopup();
     });
      
 }
