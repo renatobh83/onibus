@@ -1,5 +1,8 @@
 let map
-
+let userPosition = null
+document.addEventListener("DOMContentLoaded", async function () {
+ userPosition = await getUserLocation()
+})
 function getUserLocation() {
     return new Promise((resolve, reject) => {
         if ("geolocation" in navigator) {
@@ -51,7 +54,7 @@ async function createMap(userLocation) {
      const initialZoom = 13;
      if(!map) {
    
-     map = L.map('map',{trackResize: true}).setView(["-19.922913", "-43.925802"], initialZoom);
+     map = L.map('map',{trackResize: true}).setView([userPosition.latitude, userPosition.longitude], initialZoom);
     // Usando o provedor de mapas da OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }    
