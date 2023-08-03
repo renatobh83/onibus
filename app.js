@@ -1,9 +1,7 @@
 let map
-let userLocation = null
-document.addEventListener("DOMContentLoaded", async function () {
- userLocation = await getUserLocation()
-})
-function getUserLocation() {
+
+let userLocation = {};
+async function getUserLocation() {
     return new Promise((resolve, reject) => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
@@ -20,7 +18,16 @@ function getUserLocation() {
         }
     });
 }
+ async function main() {
+      try {
+        // Chama a função para obter a localização do usuário e armazena na variável global
+        userLocation = await getUserLocation();
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
+main()
 const coresMarcadores = {};
 const ultimaPosicao  = {}
 
@@ -50,7 +57,7 @@ function getPosicao(valor, obj) {
 }
 
 
-async function createMap(userLocation) {
+async function createMap() {
      const initialZoom = 13;
      if(!map) {
    
@@ -61,7 +68,7 @@ async function createMap(userLocation) {
 }
 
 
-function addMarkersToMap(locations,userLocation) {
+function addMarkersToMap(locations) {
     // Limpar marcadores existentes
     map.eachLayer(layer => {
         if (layer instanceof L.Marker) {
@@ -81,7 +88,7 @@ function addMarkersToMap(locations,userLocation) {
           
          marker.bindPopup(`${NV} - ${VL}`)  
       const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
-        	className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
+            className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
       posicao.bindPopup("Voce esta aqui").openPopup();
     });
      
