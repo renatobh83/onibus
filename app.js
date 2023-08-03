@@ -58,7 +58,7 @@ function getPosicao(valor, obj) {
 
 
 async function createMap() {
-     const initialZoom = 13;
+     const initialZoom = 15;
      if(!map) {
    
      map = L.map('map',{trackResize: true}).setView([userLocation.latitude, userLocation.longitude], initialZoom);
@@ -89,7 +89,7 @@ function addMarkersToMap(locations) {
          marker.bindPopup(`${NV} - ${VL}`)  
       const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
             className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
-      posicao.bindPopup("Voce esta aqui").openPopup();
+      posicao.bindPopup("Voce esta aqui")
     });
      
 }
