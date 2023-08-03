@@ -1,6 +1,14 @@
+const urlWebSocket = 'ws://localhost:3001'; // Substitua pelo endereço do servidor WebSocket
+//const urlWebSocket = 'wss://web-socket-server-bus.glitch.me/'
+
+const socket = new WebSocket(urlWebSocket);
+
 let map
 
 let userLocation = {};
+
+
+
 async function getUserLocation() {
     return new Promise((resolve, reject) => {
         if ("geolocation" in navigator) {
@@ -21,7 +29,8 @@ async function getUserLocation() {
  async function main() {
       try {
         // Chama a função para obter a localização do usuário e armazena na variável global
-        userLocation = await getUserLocation();
+        if(!userLocation.hasOwnProperty('latitude'))
+            userLocation = await getUserLocation();
       } catch (error) {
         console.error(error);
       }
@@ -29,7 +38,6 @@ async function getUserLocation() {
 
 main()
 const coresMarcadores = {};
-const ultimaPosicao  = {}
 
 
 function definirCorParaValor(valor) {
@@ -44,26 +52,16 @@ function getCorMarcador(valor) {
   definirCorParaValor(valor);
   return coresMarcadores[valor];
 }
-function definirUltimaPosicao(valor, obj) {
-   
-  if (!ultimaPosicao.hasOwnProperty(valor)) {
-        ultimaPosicao[valor] = obj;
-  }  
-}
-function getPosicao(valor, obj) {
-  // Define a cor do valor (caso ainda não exista)
-  definirUltimaPosicao(valor, obj);
-  return ultimaPosicao[valor];
-}
 
 
 async function createMap() {
-     const initialZoom = 15;
-     if(!map) {
-   
-     map = L.map('map',{trackResize: true}).setView([userLocation.latitude, userLocation.longitude], initialZoom);
-    // Usando o provedor de mapas da OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    main()
+    const initialZoom = 15;
+    if(!map) {
+        map = L.map('map',{trackResize: true})
+        .setView([userLocation.latitude, userLocation.longitude], initialZoom);
+        // Usando o provedor de mapas da OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }    
 }
 
@@ -79,28 +77,17 @@ function addMarkersToMap(locations) {
     // Adicionar marcadores para cada localidade e velocidade
     locations.forEach(location => {
         const { LT, LG, NV ,VL, NL} = location;
-
         const corMarcador = getCorMarcador(NV);
-       
-     
         const marker = L.marker([LT, LG],{ icon: L.divIcon({ 
-            className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>' }) }).addTo(map);
-          
+            className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>' }) })
+        .addTo(map);
          marker.bindPopup(`${NV} - ${VL}`)  
-      const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
+        const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
             className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
-      posicao.bindPopup("Voce esta aqui")
+        posicao.bindPopup("Voce esta aqui")
     });
      
 }
-
-
-
-//const urlWebSocket = 'ws://localhost:3001'; // Substitua pelo endereço do servidor WebSocket
-const urlWebSocket = 'wss://web-socket-server-bus.glitch.me/'
-
-const socket = new WebSocket(urlWebSocket);
-
 
 socket.onopen = function () {
     const btn = document.getElementById('btn')
