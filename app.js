@@ -50,6 +50,7 @@ function getCorMarcador(valor) {
 
 async function createMap() {
     main()
+    console.log(userLocation) 
     const initialZoom = 15;
     if(!map) {
         map = L.map('map',{trackResize: true})
@@ -58,6 +59,7 @@ async function createMap() {
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         tileLayer.on('load', function() {
         document.getElementById('loading').style.display = 'none';
+
         });
  
     }    
@@ -85,11 +87,14 @@ function addMarkersToMap(locations) {
 }
 socket.onopen = function () {
     const btn = document.getElementById('input-pesquisa')
+     document.getElementById('connect').style.display = 'none';
     btn.disabled = false
     // console.log('Conexão estabelecida com o servidor WebSocket.');
 };
 socket.onmessage = async  function (event) {
+    console.log(event.data.length)
     // console.log('Mensagem recebida do servidor:', event.data);
+        if(event.data.length === 0) return
      createMap();
      addMarkersToMap(JSON.parse(event.data));   
 };
@@ -105,7 +110,7 @@ socket.onerror = function (error) {
       const opcoesFiltradas = linhasFile.filter((opcao) =>
         opcao[2].toLowerCase().includes(pesquisa)
       );
-
+   
       if (pesquisa !== '') {
 
         opcoesFiltradas.forEach((opcao) => {
@@ -125,7 +130,7 @@ socket.onerror = function (error) {
         // Posicionar o resultado abaixo do input
         const inputPesquisa = document.getElementById("input-pesquisa");
         const inputRect = inputPesquisa.getBoundingClientRect();
-        resultadoPesquisa.style.top = inputRect.bottom + 'px';
+        resultadoPesquisa.style.top = inputRect.bottom  + 'px';
         resultadoPesquisa.style.left = inputRect.left + 'px';
       } else {
         resultadoPesquisa.innerHTML = ''; // Limpar resultados se a pesquisa estiver vazia
