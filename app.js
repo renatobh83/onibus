@@ -50,7 +50,6 @@ function getCorMarcador(valor) {
 
 async function createMap() {
     main()
-    console.log(userLocation) 
     const initialZoom = 15;
     if(!map) {
         map = L.map('map',{trackResize: true})
@@ -92,9 +91,8 @@ socket.onopen = function () {
     // console.log('Conexão estabelecida com o servidor WebSocket.');
 };
 socket.onmessage = async  function (event) {
-    console.log(event.data.length)
     // console.log('Mensagem recebida do servidor:', event.data);
-        if(event.data.length === 0) return
+    if(event.data.length === 0) return
      createMap();
      addMarkersToMap(JSON.parse(event.data));   
 };
