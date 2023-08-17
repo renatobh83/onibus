@@ -91,7 +91,7 @@ socket.onopen = function () {
     // console.log('Conexão estabelecida com o servidor WebSocket.');
 };
 socket.onmessage = async  function (event) {
-    // console.log('Mensagem recebida do servidor:', event.data);
+ console.log('Mensagem recebida do servidor:', event.data);
     if(event.data.length === 0) return
      createMap();
      addMarkersToMap(JSON.parse(event.data));   
