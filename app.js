@@ -92,7 +92,7 @@ socket.onopen = function () {
 };
 socket.onmessage = async  function (event) {
      createMap();
-    console.log(JSON.parse(event.data)
+    console.log(JSON.parse(event.data))
      addMarkersToMap(JSON.parse(event.data));   
 };
 socket.onerror = function (error) {
