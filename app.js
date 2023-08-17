@@ -50,7 +50,7 @@ function getCorMarcador(valor) {
 
 async function createMap() {
     main()
-    const initialZoom = 15;
+    const initialZoom = 13;
     if(!map) {
         map = L.map('map',{trackResize: true})
         .setView([userLocation.latitude, userLocation.longitude], initialZoom);
