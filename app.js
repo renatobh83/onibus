@@ -24,6 +24,7 @@ async function getUserLocation() {
 }
  async function main() {
       try {
+           userLocation = await getUserLocation();
         // Chama a função para obter a localização do usuário e armazena na variável global
         if(!userLocation.hasOwnProperty('latitude'))
             userLocation = await getUserLocation();
