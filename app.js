@@ -138,3 +138,6 @@ socket.onerror = function (error) {
         resultadoPesquisa.innerHTML = ''; // Limpar resultados se a pesquisa estiver vazia
       }
     }
+    
+    
+    window.onblur(()=> {window.onfocus(()=> {window.reload(true)})})
