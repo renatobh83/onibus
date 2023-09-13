@@ -140,4 +140,4 @@ socket.onerror = function (error) {
     }
     
     
-    window.onblur(()=> {window.onfocus(()=> {window.reload(true)})})
+
