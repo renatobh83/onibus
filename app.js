@@ -2052,21 +2052,13 @@ function addMarkersToMap(locations) {
     locations.forEach(location => {
         const { LT, LG, NV ,VL, NL , HR} = location;
 
-        let dataAtual = new Date();
+
         // Extrair as partes da string para formar o formato desejado
         let horas = HR.substring(8, 10);
         let minutos = HR.substring(10, 12);
         let segundos = HR.substring(12, 14)
         let horaFormatada = horas + ':' + minutos + ':' + segundos;
 
-        let horaFormatadaObj = new Date();
-            horaFormatadaObj.setHours(parseInt(horaFormatada.split(':')[0]), parseInt(horaFormatada.split(':')[1]), parseInt(horaFormatada.split(':')[2]));
-
-        // Calcular a diferença em milissegundos
-        let diferencaMilissegundos = horaFormatadaObj - dataAtual;
-
-        // Calcular a diferença em segundos
-        let diferencaSegundos = Math.floor(diferencaMilissegundos / 1000);
 
         const corMarcador = getCorMarcador(NV);
         const marker = L.marker([LT, LG],{ icon: L.divIcon({
