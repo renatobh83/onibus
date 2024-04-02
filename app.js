@@ -2037,8 +2037,8 @@ async function createMap() {
         document.getElementById('loading').style.display = 'none';
 
         });
- 
-    }    
+
+    }
 }
 
 function addMarkersToMap(locations) {
@@ -2050,13 +2050,30 @@ function addMarkersToMap(locations) {
     });
     // Adicionar marcadores para cada localidade e velocidade
     locations.forEach(location => {
-        const { LT, LG, NV ,VL, NL} = location;
+        const { LT, LG, NV ,VL, NL , HR} = location;
+
+        let dataAtual = new Date();
+        // Extrair as partes da string para formar o formato desejado
+        let horas = HR.substring(8, 10);
+        let minutos = HR.substring(10, 12);
+        let segundos = HR.substring(12, 14)
+        let horaFormatada = horas + ':' + minutos + ':' + segundos;
+
+        let horaFormatadaObj = new Date();
+            horaFormatadaObj.setHours(parseInt(horaFormatada.split(':')[0]), parseInt(horaFormatada.split(':')[1]), parseInt(horaFormatada.split(':')[2]));
+
+        // Calcular a diferença em milissegundos
+        let diferencaMilissegundos = horaFormatadaObj - dataAtual;
+
+        // Calcular a diferença em segundos
+        let diferencaSegundos = Math.floor(diferencaMilissegundos / 1000);
+
         const corMarcador = getCorMarcador(NV);
-        const marker = L.marker([LT, LG],{ icon: L.divIcon({ 
+        const marker = L.marker([LT, LG],{ icon: L.divIcon({
             className: 'custom-icon', html: '<div style="background-color: ' + corMarcador + ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>' }) })
         .addTo(map);
-         marker.bindPopup(`${NV} - ${VL}`)  
-        const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({ 
+         marker.bindPopup(`${NV} - ${horaFormatada}`)
+        const posicao = L.marker([userLocation.latitude, userLocation.longitude],{ icon: L.divIcon({
             className: 'custom-icon', html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>' }) }).addTo(map)
         posicao.bindPopup("Voce esta aqui")
     });
@@ -2068,12 +2085,13 @@ socket.onopen = function () {
     // console.log('Conexão estabelecida com o servidor WebSocket.');
 };
 socket.onmessage = async  function (event) {
+
     if(typeof JSON.parse(event.data) === 'string'){
         document.getElementById('loading').style.display = 'none';
         document.getElementById('error').style.display = 'block';
     } else {
      createMap();
-     addMarkersToMap(JSON.parse(event.data));   
+     addMarkersToMap(JSON.parse(event.data));
     }
 };
 socket.onerror = function (error) {
@@ -2088,7 +2106,7 @@ socket.onerror = function (error) {
       const opcoesFiltradas = linhasFile.filter((opcao) =>
         opcao[2].toLowerCase().includes(pesquisa)
       );
-   
+
       if (pesquisa !== '') {
 
         opcoesFiltradas.forEach((opcao) => {
@@ -2114,6 +2132,6 @@ socket.onerror = function (error) {
         resultadoPesquisa.innerHTML = ''; // Limpar resultados se a pesquisa estiver vazia
       }
     }
-    
-    
+
+
 

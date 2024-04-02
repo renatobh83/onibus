@@ -16,10 +16,10 @@
       margin: 0;
       width: 8rem;
       max-height: 250px; /* Altura máxima da lista de resultados */
-      overflow-y: auto; 
+      overflow-y: auto;
       z-index: 1000; /* Z-index maior que o input para ficar sobreposto ao fundo */
     }
- 
+
     #resultado-pesquisa li {
       padding: 5px;
       cursor: pointer;
@@ -32,6 +32,7 @@
         <div class="mb-2" >
             <label for="input-pesquisa" class="text-sm text-gray-50 mr-2">Digite sua pesquisa:</label>
             <input type="text" disabled id="input-pesquisa" inputmode="numeric" class="p-2 rounded-lg w-32" oninput="filtrarOpcoes()" />
+            <span id="hora-atual" class="text-gray-50 ml-2"></span>
             <ul id="resultado-pesquisa" class="font-semibold"></ul>
         </div>
         <div id="map" class="flex-1 rounded-lg"></div>
@@ -50,6 +51,27 @@
     <!-- Por exemplo, o mapa do OpenStreetMap: -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="app.js"></script>
+    <script>
+      // Função para atualizar a hora atual
+      function atualizarHora() {
+          fetch('https://worldtimeapi.org/api/timezone/America/Sao_Paulo')
+          .then(response => response.json())
+          .then(data => {
+              let horaAtual = data.datetime.slice(11, 19); // Obter apenas a hora, minutos e segundos
+              document.getElementById('hora-atual').textContent = horaAtual;
+          })
+          .catch(error => {
+              console.error('Erro ao obter a hora:', error);
+          });
+      }
+
+      // Atualizar a hora inicialmente
+      atualizarHora();
+
+      // Atualizar a hora a cada segundo
+      setInterval(atualizarHora, 1000);
+      </script>
+
 
 </body>
 </html>
