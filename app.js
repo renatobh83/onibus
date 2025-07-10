@@ -1,5 +1,5 @@
 //const urlWebSocket = 'ws://localhost:3001'; // Substitua pelo endereço do servidor WebSocket
-const urlWebSocket = 'wss://web-socket-server-bus.glitch.me/'
+const urlWebSocket = 'wss://websocketserver.duckdns.org/'
 const linhasFile =[
     [1,"2","0100-01","BARREIRO"],
     [2,"3","0100-02","BARREIRO"],
