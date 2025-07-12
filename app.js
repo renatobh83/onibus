@@ -2103,7 +2103,7 @@ socket.onerror = function (error) {
 
         opcoesFiltradas.forEach((opcao) => {
           const itemOpcao = document.createElement("li");
-          itemOpcao.textContent = opcao[2]; // Mostrar o valor da terceira posição do array
+          itemOpcao.textContent = `${opcao[2] - opcao[3]}`; // Mostrar o valor da terceira posição do array
           itemOpcao.addEventListener('click', () => {
             // Chamar a função desejada quando o item for clicado
             // Remover pesquisa e resultados
