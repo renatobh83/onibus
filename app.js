@@ -2033,6 +2033,25 @@ async function createMap() {
         .setView([userLocation.latitude, userLocation.longitude], initialZoom);
         // Usando o provedor de mapas da OpenStreetMap
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+          // 2. CAMADA DE TRÁFEGO (SOBREPOSIÇÃO): Adiciona os dados de fluxo
+    const trafficLayer = L.tileLayer(
+      "https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=1MaEvZdYW89o7TyJjzof1oqGMTU7KCa8",
+      {
+        attribution: "Tráfego © TomTom",
+        subdomains: ["a", "b", "c", "d"],
+        tileSize: 512,
+        zoomOffset: -1,
+        opacity: 0.7, // Deixa o mapa base parcialmente visível
+      }
+    );
+            // 3. CONTROLE DE CAMADAS: Permite ligar/desligar o tráfego (Opcional, mas recomendado)
+    const baseLayers = {
+      "Mapa Base": tileLayer,
+    };
+    const overlays = {
+      "Condições do Tráfego": trafficLayer,
+    };
+        L.control.layers(baseLayers, overlays).addTo(map);
         tileLayer.on('load', function() {
         document.getElementById('loading').style.display = 'none';
 
