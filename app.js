@@ -2024,7 +2024,109 @@ function getCorMarcador(valor) {
   definirCorParaValor(valor);
   return coresMarcadores[valor];
 }
+// Legenda com botão de toggle
+const InteractiveTrafficLegend = L.Control.extend({
+  options: {
+    position: "bottomright",
+    collapsed: true,
+  },
 
+  onAdd: function (map) {
+    const container = L.DomUtil.create("div", "traffic-legend-container");
+
+    // Botão para expandir/recolher
+    const toggleButton = L.DomUtil.create("button", "legend-toggle", container);
+    toggleButton.innerHTML = "Legenda do Tráfego";
+    toggleButton.style.cssText = `
+            background: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            font-weight: bold;
+        `;
+
+    // Conteúdo da legenda (inicialmente escondido)
+    const content = L.DomUtil.create("div", "legend-content", container);
+    content.style.cssText = `
+            display: ${this.options.collapsed ? "none" : "block"};
+            background: white;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        `;
+
+    content.innerHTML = `
+     <div style="font-weight: bold; margin-bottom: 12px; color: #2c3e50; font-size: 14px;">
+            TomTom Traffic
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; margin: 6px 0;">
+                <div style="width: 25px; height: 14px; background: #666666; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div>
+                    <div style="font-weight: 600;">Estrada Fechada</div>
+                    <div style="font-size: 11px; color: #777;">Road Closed</div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; margin: 6px 0;">
+                <div style="width: 25px; height: 14px; background: #C1272D; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div>
+                    <div style="font-weight: 600;">Tráfego Parado</div>
+                    <div style="font-size: 11px; color: #777;">0% - 14% da velocidade</div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; margin: 6px 0;">
+                <div style="width: 25px; height: 14px; background: #E70704; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div>
+                    <div style="font-weight: 600;">Muito Congestionado</div>
+                    <div style="font-size: 11px; color: #777;">15% - 34% da velocidade</div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; margin: 6px 0;">
+                <div style="width: 25px; height: 14px; background: #F18237; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div>
+                    <div style="font-weight: 600;">Congestionado</div>
+                    <div style="font-size: 11px; color: #777;">35% - 74% da velocidade</div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; margin: 6px 0;">
+                <div style="width: 25px; height: 14px; background: #F1BF40; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div>
+                    <div style="font-weight: 600;">Fluido</div>
+                    <div style="font-size: 11px; color: #777;">75%+ da velocidade</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size: 11px; color: #666; padding-top: 10px; border-top: 1px solid #eee;">
+            <div>📍 Velocidade relativa ao fluxo livre</div>
+            <div>🕒 Atualizado em tempo real</div>
+        </div>
+        `;
+
+    // Evento de clique no botão
+    L.DomEvent.on(toggleButton, "click", function () {
+      if (content.style.display === "none") {
+        content.style.display = "block";
+      } else {
+        content.style.display = "none";
+      }
+    });
+
+    // Prevenir eventos do mapa quando interagir com a legenda
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+
+    return container;
+  },
+});
 async function createMap() {
     main()
     const initialZoom = 13;
@@ -2051,6 +2153,7 @@ async function createMap() {
     const overlays = {
       "Condições do Tráfego": trafficLayer,
     };
+           new InteractiveTrafficLegend().addTo(map);
         L.control.layers(baseLayers, overlays).addTo(map);
         tileLayer.on('load', function() {
         document.getElementById('loading').style.display = 'none';
