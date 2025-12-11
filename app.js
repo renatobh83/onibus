@@ -2058,22 +2058,12 @@ const InteractiveTrafficLegend = L.Control.extend({
             box-shadow: 0 1px 5px rgba(0,0,0,0.4);
         `;
 
-    content.innerHTML = `
-     <div style="font-weight: bold; margin-bottom: 12px; color: #2c3e50; font-size: 14px;">
-            TomTom Traffic
-        </div>
+   content.innerHTML = `
 
         <div style="margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #666666; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
-                <div>
-                    <div style="font-weight: 600;">Estrada Fechada</div>
-                    <div style="font-size: 11px; color: #777;">Road Closed</div>
-                </div>
-            </div>
 
             <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #C1272D; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div style="width: 25px; height: 14px; background: #666666; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
                 <div>
                     <div style="font-weight: 600;">Tráfego Parado</div>
                     <div style="font-size: 11px; color: #777;">0% - 14% da velocidade</div>
@@ -2081,7 +2071,7 @@ const InteractiveTrafficLegend = L.Control.extend({
             </div>
 
             <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #E70704; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div style="width: 25px; height: 14px; background: #A50704; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
                 <div>
                     <div style="font-weight: 600;">Muito Congestionado</div>
                     <div style="font-size: 11px; color: #777;">15% - 34% da velocidade</div>
@@ -2089,7 +2079,7 @@ const InteractiveTrafficLegend = L.Control.extend({
             </div>
 
             <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #F18237; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div style="width: 25px; height: 14px; background: #DF4B15; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
                 <div>
                     <div style="font-weight: 600;">Congestionado</div>
                     <div style="font-size: 11px; color: #777;">35% - 74% da velocidade</div>
@@ -2097,7 +2087,7 @@ const InteractiveTrafficLegend = L.Control.extend({
             </div>
 
             <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #F1BF40; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+                <div style="width: 25px; height: 14px; background: #245723; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
                 <div>
                     <div style="font-weight: 600;">Fluido</div>
                     <div style="font-size: 11px; color: #777;">75%+ da velocidade</div>
@@ -2105,12 +2095,7 @@ const InteractiveTrafficLegend = L.Control.extend({
             </div>
         </div>
 
-        <div style="font-size: 11px; color: #666; padding-top: 10px; border-top: 1px solid #eee;">
-            <div>📍 Velocidade relativa ao fluxo livre</div>
-            <div>🕒 Atualizado em tempo real</div>
-        </div>
         `;
-
     // Evento de clique no botão
     L.DomEvent.on(toggleButton, "click", function () {
       if (content.style.display === "none") {
