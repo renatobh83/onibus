@@ -2131,12 +2131,24 @@ async function createMap() {
         opacity: 0.7, // Deixa o mapa base parcialmente visível
       }
     );
+
+        const trafficLayerab = L.tileLayer(
+      "https://api.tomtom.com/traffic/map/4/tile/flow/absolute/{z}/{x}/{y}.png?key=1MaEvZdYW89o7TyJjzof1oqGMTU7KCa8",
+      {
+        attribution: "Tráfego © TomTom",
+        subdomains: ["a", "b", "c", "d"],
+        tileSize: 512,
+        zoomOffset: -1,
+        opacity: 0.7, // Deixa o mapa base parcialmente visível
+      }
+    );
             // 3. CONTROLE DE CAMADAS: Permite ligar/desligar o tráfego (Opcional, mas recomendado)
     const baseLayers = {
       "Mapa Base": tileLayer,
     };
     const overlays = {
       "Condições do Tráfego": trafficLayer,
+        "Mapa absoluto": trafficLayerab
     };
            new InteractiveTrafficLegend().addTo(map);
         L.control.layers(baseLayers, overlays).addTo(map);
