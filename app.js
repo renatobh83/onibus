@@ -2299,7 +2299,7 @@ async function createMap() {
   const initialZoom = 13;
 
   userLocation = await getUserLocation(); // AGORA ESPERA
-  map = L.map("map", { trackResize: true }).setView(
+  map = L.map("map", { trackResize: true, zoomControl: false }).setView(
     [userLocation.latitude, userLocation.longitude],
     initialZoom
   );
@@ -2341,6 +2341,11 @@ async function createMap() {
   // Adicionar legenda interativa
   new InteractiveTrafficLegend().addTo(map);
   L.control.layers(baseLayers, overlays).addTo(map);
+  L.control
+    .zoom({
+      position: "bottomleft",
+    })
+    .addTo(map);
   tileLayer.on("load", function () {
     document.getElementById("loading").style.display = "none";
   });
