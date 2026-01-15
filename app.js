@@ -2165,166 +2165,103 @@ const DEFAULT_LOCATION = {
   longitude: -43.92559868408609,
 };
 
-let map;
-let userLocation = {};
-async function getUserLocation() {
-  return new Promise((resolve, reject) => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          resolve({ latitude, longitude });
-        },
-        (error) => {
-          reject("Não foi possível obter a localização do usuário.");
-        }
-      );
-    } else {
-      reject("Geolocalização não está disponível no navegador.");
+let map = null;
+let userLocation = DEFAULT_LOCATION;
+let userMarker = null;
+let markersLayer = L.layerGroup();
+
+/*********************************
+ * GEOLOCALIZAÇÃO
+ *********************************/
+function getUserLocation() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(DEFAULT_LOCATION);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      () => resolve(DEFAULT_LOCATION),
+      { timeout: 5000 }
+    );
   });
 }
-async function main() {
-  try {
-    userLocation = await getUserLocation();
-    // Chama a função para obter a localização do usuário e armazena na variável global
-    if (!userLocation.hasOwnProperty("latitude"))
-      userLocation = await getUserLocation();
-  } catch (error) {
-    console.error(error);
-    return DEFAULT_LOCATION;
-  }
-}
 
-main();
+/*********************************
+ * CORES DOS MARCADORES
+ *********************************/
 const coresMarcadores = {};
 
-function definirCorParaValor(valor) {
-  if (!coresMarcadores.hasOwnProperty(valor)) {
-    // Gerar uma cor hexadecimal aleatória
-    const corAleatoria =
-      "#" + Math.floor(Math.random() * 16777215).toString(16);
-    coresMarcadores[valor] = corAleatoria;
-  }
-}
 function getCorMarcador(valor) {
-  // Define a cor do valor (caso ainda não exista)
-  definirCorParaValor(valor);
+  if (!coresMarcadores[valor]) {
+    coresMarcadores[valor] =
+      "#" + Math.floor(Math.random() * 16777215).toString(16);
+  }
   return coresMarcadores[valor];
 }
-// Legenda com botão de toggle
+
+/*********************************
+ * LEGENDA
+ *********************************/
 const InteractiveTrafficLegend = L.Control.extend({
-  options: {
-    position: "bottomright",
-    collapsed: true,
-  },
+  options: { position: "bottomright", collapsed: true },
 
-  onAdd: function (map) {
-    const container = L.DomUtil.create("div", "traffic-legend-container");
+  onAdd: function () {
+    const container = L.DomUtil.create("div");
+    const btn = L.DomUtil.create("button", "", container);
+    const content = L.DomUtil.create("div", "", container);
 
-    // Botão para expandir/recolher
-    const toggleButton = L.DomUtil.create("button", "legend-toggle", container);
-    toggleButton.innerHTML = "Legenda do Tráfego";
-    toggleButton.style.cssText = `
-            background: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-            font-weight: bold;
-        `;
+    btn.innerHTML = "Legenda do Tráfego";
+    btn.style.cssText =
+      "background:white;padding:8px;border-radius:4px;font-weight:bold";
 
-    // Conteúdo da legenda (inicialmente escondido)
-    const content = L.DomUtil.create("div", "legend-content", container);
-    content.style.cssText = `
-            display: ${this.options.collapsed ? "none" : "block"};
-            background: white;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-        `;
-
+    content.style.display = "none";
     content.innerHTML = `
+      <div><b>Tráfego Parado</b> (0–14%)</div>
+      <div><b>Muito Congestionado</b> (15–34%)</div>
+      <div><b>Congestionado</b> (35–74%)</div>
+      <div><b>Fluido</b> (75%+)</div>
+    `;
 
-        <div style="margin-bottom: 10px;">
+    btn.onclick = () =>
+      (content.style.display =
+        content.style.display === "none" ? "block" : "none");
 
-            <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #666666; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
-                <div>
-                    <div style="font-weight: 600;">Tráfego Parado</div>
-                    <div style="font-size: 11px; color: #777;">0% - 14% da velocidade</div>
-                </div>
-            </div>
-
-            <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #A50704; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
-                <div>
-                    <div style="font-weight: 600;">Muito Congestionado</div>
-                    <div style="font-size: 11px; color: #777;">15% - 34% da velocidade</div>
-                </div>
-            </div>
-
-            <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #DF4B15; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
-                <div>
-                    <div style="font-weight: 600;">Congestionado</div>
-                    <div style="font-size: 11px; color: #777;">35% - 74% da velocidade</div>
-                </div>
-            </div>
-
-            <div style="display: flex; align-items: center; margin: 6px 0;">
-                <div style="width: 25px; height: 14px; background: #245723; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
-                <div>
-                    <div style="font-weight: 600;">Fluido</div>
-                    <div style="font-size: 11px; color: #777;">75%+ da velocidade</div>
-                </div>
-            </div>
-        </div>
-
-        `;
-
-    // Evento de clique no botão
-    L.DomEvent.on(toggleButton, "click", function () {
-      if (content.style.display === "none") {
-        content.style.display = "block";
-      } else {
-        content.style.display = "none";
-      }
-    });
-
-    // Prevenir eventos do mapa quando interagir com a legenda
     L.DomEvent.disableClickPropagation(container);
-    L.DomEvent.disableScrollPropagation(container);
-
     return container;
   },
 });
+
+/*********************************
+ * MAPA
+ *********************************/
 async function createMap() {
   if (map) return;
-  const initialZoom = 13;
 
-  userLocation = await main(); // AGORA ESPERA
-  map = L.map("map", { trackResize: true }).setView(
+  userLocation = await getUserLocation();
+
+  map = L.map("map").setView(
     [userLocation.latitude, userLocation.longitude],
-    initialZoom
+    13
   );
-  // Usando o provedor de mapas da OpenStreetMap
+
   const tileLayer = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
   ).addTo(map);
 
-  // 2. CAMADA DE TRÁFEGO (SOBREPOSIÇÃO): Adiciona os dados de fluxo
   const trafficLayer = L.tileLayer(
-    "https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=" +
-      TOMTOM_API_KEY,
+    `https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${TOMTOM_API_KEY}`,
     {
       attribution: "Tráfego © TomTom",
-      subdomains: ["a", "b", "c", "d"],
       tileSize: 512,
       zoomOffset: -1,
-      opacity: 0.7, // Deixa o mapa base parcialmente visível
+      opacity: 0.7,
     }
   );
   const trafficLayerAbsolute = L.tileLayer(
@@ -2336,7 +2273,6 @@ async function createMap() {
       thickness: 20,
     }
   );
-  // 3. CONTROLE DE CAMADAS: Permite ligar/desligar o tráfego (Opcional, mas recomendado)
   const baseLayers = {
     "Mapa Base": tileLayer,
   };
@@ -2344,140 +2280,411 @@ async function createMap() {
     "Condições do Tráfego": trafficLayer,
     Absoluto: trafficLayerAbsolute,
   };
-
-  // Adicionar legenda interativa
+  markersLayer.addTo(map);
   new InteractiveTrafficLegend().addTo(map);
   L.control.layers(baseLayers, overlays).addTo(map);
-  tileLayer.on("load", function () {
-    document.getElementById("loading").style.display = "none";
-  });
-}
 
-function addMarkersToMap(locations) {
-  if (!map) {
-    console.warn("Mapa ainda não foi criado");
-    return;
-  }
-
-  if (!Array.isArray(locations) || locations.length === 0) {
-    console.warn("Nenhuma localização recebida");
-    return;
-  }
-  // Limpar marcadores existentes
-  map.eachLayer((layer) => {
-    if (layer instanceof L.Marker) {
-      map.removeLayer(layer);
-    }
-  });
-  // marcador do usuário
-  L.marker([userLocation.latitude, userLocation.longitude], {
+  userMarker = L.marker([userLocation.latitude, userLocation.longitude], {
     icon: L.divIcon({
-      className: "custom-icon",
-      html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>',
+      html: `<div class="w-3 h-3 bg-black rounded-full"></div>`,
     }),
   })
     .addTo(map)
     .bindPopup("Você está aqui");
-  // Adicionar marcadores para cada localidade e velocidade
-  locations.forEach((location) => {
-    const { LT, LG, NV, VL, NL, HR } = location;
+}
 
-    // Extrair as partes da string para formar o formato desejado
-    let horas = HR.substring(8, 10);
-    let minutos = HR.substring(10, 12);
-    let segundos = HR.substring(12, 14);
-    let horaFormatada = horas + ":" + minutos + ":" + segundos;
+/*********************************
+ * MARCADORES
+ *********************************/
+function addMarkersToMap(locations) {
+  if (!map || !Array.isArray(locations)) return;
 
-    const corMarcador = getCorMarcador(NV);
+  markersLayer.clearLayers();
+
+  locations.forEach(({ LT, LG, NV, HR }) => {
+    if (!LT || !LG) return;
+
+    const hora =
+      HR?.substring(8, 10) +
+      ":" +
+      HR?.substring(10, 12) +
+      ":" +
+      HR?.substring(12, 14);
+
     L.marker([LT, LG], {
       icon: L.divIcon({
-        className: "custom-icon",
-        html:
-          '<div style="background-color: ' +
-          corMarcador +
-          ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>',
+        html: `<div style="background:${getCorMarcador(
+          NV
+        )}" class="w-4 h-4 rounded-full"></div>`,
       }),
     })
-      .addTo(map)
-      .bindPopup(`${NV} - ${horaFormatada}`);
-    // const posicao = L.marker([userLocation.latitude, userLocation.longitude], {
-    //   icon: L.divIcon({
-    //     className: "custom-icon",
-    //     html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>',
-    //   }),
-    // }).addTo(map);
-    // posicao.bindPopup("Voce esta aqui");
+      .bindPopup(`${NV} - ${hora}`)
+      .addTo(markersLayer);
   });
 }
-socket.onopen = function () {
-  const btn = document.getElementById("input-pesquisa");
-  document.getElementById("connect").style.display = "none";
-  btn.disabled = false;
-  // console.log('Conexão estabelecida com o servidor WebSocket.');
-};
-socket.onmessage = async function (event) {
-  let data;
 
+/*********************************
+ * SOCKET
+ *********************************/
+socket.onopen = () => {
+  document.getElementById("connect").style.display = "none";
+  document.getElementById("input-pesquisa").disabled = false;
+};
+
+socket.onmessage = async (event) => {
+  let data;
   try {
     data = JSON.parse(event.data);
   } catch {
-    console.warn("Mensagem inválida do socket");
     return;
   }
 
   if (!Array.isArray(data) || data.length === 0) {
     document.getElementById("loading").style.display = "none";
-    document.getElementById("error").style.display = "block";
     return;
   }
 
-  await createMap(); // AGORA ESPERA O MAPA
+  await createMap();
   addMarkersToMap(data);
-
-  // if (typeof JSON.parse(event.data) === "string") {
-  //   document.getElementById("loading").style.display = "none";
-  //   document.getElementById("error").style.display = "block";
-  // } else {
-  //   createMap();
-  //   addMarkersToMap(JSON.parse(event.data));
-  // }
-};
-socket.onerror = function (error) {
-  console.error("Erro ao conectar com o servidor WebSocket:", error);
 };
 
+socket.onerror = (err) => {
+  console.error("Erro WebSocket:", err);
+};
+
+/*********************************
+ * FILTRO
+ *********************************/
 function filtrarOpcoes() {
   const pesquisa = document
     .getElementById("input-pesquisa")
     .value.toLowerCase();
-  const resultadoPesquisa = document.getElementById("resultado-pesquisa");
-  resultadoPesquisa.innerHTML = ""; // Limpar resultados anteriores
 
-  const opcoesFiltradas = linhasFile.filter((opcao) =>
-    opcao[2].toLowerCase().includes(pesquisa)
-  );
+  const resultado = document.getElementById("resultado-pesquisa");
+  resultado.innerHTML = "";
 
-  if (pesquisa !== "") {
-    opcoesFiltradas.forEach((opcao) => {
-      const itemOpcao = document.createElement("li");
-      itemOpcao.textContent = `${opcao[2]} - ${opcao[3]}`; // Mostrar o valor da terceira posição do array
-      itemOpcao.addEventListener("click", () => {
-        // Chamar a função desejada quando o item for clicado
-        // Remover pesquisa e resultados
+  if (!pesquisa) return;
+
+  linhasFile
+    .filter((o) => o[2].toLowerCase().includes(pesquisa))
+    .forEach((opcao) => {
+      const li = document.createElement("li");
+      li.textContent = `${opcao[2]} - ${opcao[3]}`;
+      li.onclick = () => {
         socket.send(opcao[1]);
         document.getElementById("loading").style.display = "block";
-        document.getElementById("input-pesquisa").value = "";
-        resultadoPesquisa.innerHTML = "";
-      });
-      resultadoPesquisa.appendChild(itemOpcao);
+        resultado.innerHTML = "";
+      };
+      resultado.appendChild(li);
     });
-
-    // Posicionar o resultado abaixo do input
-    const inputPesquisa = document.getElementById("input-pesquisa");
-    const inputRect = inputPesquisa.getBoundingClientRect();
-    resultadoPesquisa.style.top = inputRect.bottom + "px";
-    resultadoPesquisa.style.left = inputRect.left + "px";
-  } else {
-    resultadoPesquisa.innerHTML = ""; // Limpar resultados se a pesquisa estiver vazia
-  }
 }
+
+// const socket = new WebSocket(urlWebSocket);
+
+// const DEFAULT_LOCATION = {
+//   latitude: -19.92275239885149,
+//   longitude: -43.92559868408609,
+// };
+
+// let map;
+// let userLocation = {};
+// async function getUserLocation() {
+//   return new Promise((resolve, reject) => {
+//     if ("geolocation" in navigator) {
+//       navigator.geolocation.getCurrentPosition(
+//         (position) => {
+//           const { latitude, longitude } = position.coords;
+//           resolve({ latitude, longitude });
+//         },
+//         (error) => {
+//           reject("Não foi possível obter a localização do usuário.");
+//         }
+//       );
+//     } else {
+//       reject("Geolocalização não está disponível no navegador.");
+//     }
+//   });
+// }
+// async function main() {
+//   try {
+//     userLocation = await getUserLocation();
+//     // Chama a função para obter a localização do usuário e armazena na variável global
+//     if (!userLocation.hasOwnProperty("latitude"))
+//       userLocation = await getUserLocation();
+//   } catch (error) {
+//     console.error(error);
+//     return DEFAULT_LOCATION;
+//   }
+// }
+
+// main();
+// const coresMarcadores = {};
+
+// function definirCorParaValor(valor) {
+//   if (!coresMarcadores.hasOwnProperty(valor)) {
+//     // Gerar uma cor hexadecimal aleatória
+//     const corAleatoria =
+//       "#" + Math.floor(Math.random() * 16777215).toString(16);
+//     coresMarcadores[valor] = corAleatoria;
+//   }
+// }
+// function getCorMarcador(valor) {
+//   // Define a cor do valor (caso ainda não exista)
+//   definirCorParaValor(valor);
+//   return coresMarcadores[valor];
+// }
+// // Legenda com botão de toggle
+// const InteractiveTrafficLegend = L.Control.extend({
+//   options: {
+//     position: "bottomright",
+//     collapsed: true,
+//   },
+
+//   onAdd: function (map) {
+//     const container = L.DomUtil.create("div", "traffic-legend-container");
+
+//     // Botão para expandir/recolher
+//     const toggleButton = L.DomUtil.create("button", "legend-toggle", container);
+//     toggleButton.innerHTML = "Legenda do Tráfego";
+//     toggleButton.style.cssText = `
+//             background: white;
+//             border: none;
+//             padding: 8px 12px;
+//             border-radius: 4px;
+//             cursor: pointer;
+//             box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+//             font-weight: bold;
+//         `;
+
+//     // Conteúdo da legenda (inicialmente escondido)
+//     const content = L.DomUtil.create("div", "legend-content", container);
+//     content.style.cssText = `
+//             display: ${this.options.collapsed ? "none" : "block"};
+//             background: white;
+//             padding: 10px;
+//             margin-top: 5px;
+//             border-radius: 4px;
+//             box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+//         `;
+
+//     content.innerHTML = `
+
+//         <div style="margin-bottom: 10px;">
+
+//             <div style="display: flex; align-items: center; margin: 6px 0;">
+//                 <div style="width: 25px; height: 14px; background: #666666; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+//                 <div>
+//                     <div style="font-weight: 600;">Tráfego Parado</div>
+//                     <div style="font-size: 11px; color: #777;">0% - 14% da velocidade</div>
+//                 </div>
+//             </div>
+
+//             <div style="display: flex; align-items: center; margin: 6px 0;">
+//                 <div style="width: 25px; height: 14px; background: #A50704; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+//                 <div>
+//                     <div style="font-weight: 600;">Muito Congestionado</div>
+//                     <div style="font-size: 11px; color: #777;">15% - 34% da velocidade</div>
+//                 </div>
+//             </div>
+
+//             <div style="display: flex; align-items: center; margin: 6px 0;">
+//                 <div style="width: 25px; height: 14px; background: #DF4B15; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+//                 <div>
+//                     <div style="font-weight: 600;">Congestionado</div>
+//                     <div style="font-size: 11px; color: #777;">35% - 74% da velocidade</div>
+//                 </div>
+//             </div>
+
+//             <div style="display: flex; align-items: center; margin: 6px 0;">
+//                 <div style="width: 25px; height: 14px; background: #245723; margin-right: 10px; border-radius: 3px; border: 1px solid #ddd;"></div>
+//                 <div>
+//                     <div style="font-weight: 600;">Fluido</div>
+//                     <div style="font-size: 11px; color: #777;">75%+ da velocidade</div>
+//                 </div>
+//             </div>
+//         </div>
+
+//         `;
+
+//     // Evento de clique no botão
+//     L.DomEvent.on(toggleButton, "click", function () {
+//       if (content.style.display === "none") {
+//         content.style.display = "block";
+//       } else {
+//         content.style.display = "none";
+//       }
+//     });
+
+//     // Prevenir eventos do mapa quando interagir com a legenda
+//     L.DomEvent.disableClickPropagation(container);
+//     L.DomEvent.disableScrollPropagation(container);
+
+//     return container;
+//   },
+// });
+// async function createMap() {
+//   if (map) return;
+//   const initialZoom = 13;
+
+//   userLocation = await main(); // AGORA ESPERA
+//   map = L.map("map", { trackResize: true }).setView(
+//     [userLocation.latitude, userLocation.longitude],
+//     initialZoom
+//   );
+//   // Usando o provedor de mapas da OpenStreetMap
+//   const tileLayer = L.tileLayer(
+//     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+//   ).addTo(map);
+
+//   // 2. CAMADA DE TRÁFEGO (SOBREPOSIÇÃO): Adiciona os dados de fluxo
+//   const trafficLayer = L.tileLayer(
+//     "https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=" +
+//       TOMTOM_API_KEY,
+//     {
+//       attribution: "Tráfego © TomTom",
+//       subdomains: ["a", "b", "c", "d"],
+//       tileSize: 512,
+//       zoomOffset: -1,
+//       opacity: 0.7, // Deixa o mapa base parcialmente visível
+//     }
+//   );
+//   const trafficLayerAbsolute = L.tileLayer(
+//     "https://api.tomtom.com/traffic/map/4/tile/flow/absolute/{z}/{x}/{y}.png?key=" +
+//       TOMTOM_API_KEY,
+//     {
+//       attribution: "Tráfego © TomTom",
+//       tileSize: 512,
+//       thickness: 20,
+//     }
+//   );
+//   // 3. CONTROLE DE CAMADAS: Permite ligar/desligar o tráfego (Opcional, mas recomendado)
+//   const baseLayers = {
+//     "Mapa Base": tileLayer,
+//   };
+//   const overlays = {
+//     "Condições do Tráfego": trafficLayer,
+//     Absoluto: trafficLayerAbsolute,
+//   };
+
+//   // Adicionar legenda interativa
+//   new InteractiveTrafficLegend().addTo(map);
+//   L.control.layers(baseLayers, overlays).addTo(map);
+//   tileLayer.on("load", function () {
+//     document.getElementById("loading").style.display = "none";
+//   });
+// }
+
+// function addMarkersToMap(locations) {
+//   if (!map) {
+//     console.warn("Mapa ainda não foi criado");
+//     return;
+//   }
+
+//   if (!Array.isArray(locations) || locations.length === 0) {
+//     console.warn("Nenhuma localização recebida");
+//     return;
+//   }
+//   // Limpar marcadores existentes
+//   map.eachLayer((layer) => {
+//     if (layer instanceof L.Marker) {
+//       map.removeLayer(layer);
+//     }
+//   });
+//   // marcador do usuário
+//   L.marker([userLocation.latitude, userLocation.longitude], {
+//     icon: L.divIcon({
+//       className: "custom-icon",
+//       html: '<div class="relative w-3 h-3 bg-gray-900 rounded-full ring-2 ring-gray-300"></div>',
+//     }),
+//   })
+//     .addTo(map)
+//     .bindPopup("Você está aqui");
+//   // Adicionar marcadores para cada localidade e velocidade
+//   locations.forEach((location) => {
+//     const { LT, LG, NV, VL, NL, HR, SV } = location;
+
+//     // Extrair as partes da string para formar o formato desejado
+//     let horas = HR.substring(8, 10);
+//     let minutos = HR.substring(10, 12);
+//     let segundos = HR.substring(12, 14);
+//     let horaFormatada = horas + ":" + minutos + ":" + segundos;
+
+//     const corMarcador = getCorMarcador(NV);
+//     L.marker([LT, LG], {
+//       icon: L.divIcon({
+//         className: "custom-icon",
+//         html:
+//           '<div style="background-color: ' +
+//           corMarcador +
+//           ';" class="relative w-4 h-4 rounded-full ring-2 ring-gray-900"></div>',
+//       }),
+//     })
+//       .addTo(map)
+//       .bindPopup(`${NV} - ${horaFormatada}`);
+
+//   });
+// }
+// socket.onopen = function () {
+//   const btn = document.getElementById("input-pesquisa");
+//   document.getElementById("connect").style.display = "none";
+//   btn.disabled = false;
+//   // console.log('Conexão estabelecida com o servidor WebSocket.');
+// };
+// socket.onmessage = async function (event) {
+//   let data;
+
+//   try {
+//     data = JSON.parse(event.data);
+//   } catch {
+//     console.warn("Mensagem inválida do socket");
+//     return;
+//   }
+
+//   if (!Array.isArray(data) || data.length === 0) {
+//     document.getElementById("loading").style.display = "none";
+//     document.getElementById("error").style.display = "block";
+//     return;
+//   }
+//   await createMap(); // AGORA ESPERA O MAPA
+//   addMarkersToMap(data);
+
+// };
+// socket.onerror = function (error) {
+//   console.error("Erro ao conectar com o servidor WebSocket:", error);
+// };
+
+// function filtrarOpcoes() {
+//   const pesquisa = document
+//     .getElementById("input-pesquisa")
+//     .value.toLowerCase();
+//   const resultadoPesquisa = document.getElementById("resultado-pesquisa");
+//   resultadoPesquisa.innerHTML = ""; // Limpar resultados anteriores
+
+//   const opcoesFiltradas = linhasFile.filter((opcao) =>
+//     opcao[2].toLowerCase().includes(pesquisa)
+//   );
+
+//   if (pesquisa !== "") {
+//     opcoesFiltradas.forEach((opcao) => {
+//       const itemOpcao = document.createElement("li");
+//       itemOpcao.textContent = `${opcao[2]} - ${opcao[3]}`; // Mostrar o valor da terceira posição do array
+//       itemOpcao.addEventListener("click", () => {
+//         // Chamar a função desejada quando o item for clicado
+//         // Remover pesquisa e resultados
+//         socket.send(opcao[1]);
+//         document.getElementById("loading").style.display = "block";
+//         document.getElementById("input-pesquisa").value = "";
+//         resultadoPesquisa.innerHTML = "";
+//       });
+//       resultadoPesquisa.appendChild(itemOpcao);
+//     });
+
+//     // Posicionar o resultado abaixo do input
+//     const inputPesquisa = document.getElementById("input-pesquisa");
+//     const inputRect = inputPesquisa.getBoundingClientRect();
+//     resultadoPesquisa.style.top = inputRect.bottom + "px";
+//     resultadoPesquisa.style.left = inputRect.left + "px";
+//   } else {
+//     resultadoPesquisa.innerHTML = ""; // Limpar resultados se a pesquisa estiver vazia
+//   }
+// }
