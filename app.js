@@ -2335,7 +2335,7 @@ async function createMap() {
   };
   const overlays = {
     "Condições do Tráfego": trafficLayer,
-    Absoluto: trafficLayerAbsolute,
+    "Absoluto": trafficLayerAbsolute,
   };
   markersLayer.addTo(map);
   // Adicionar legenda interativa
