@@ -2296,7 +2296,7 @@ const InteractiveTrafficLegend = L.Control.extend({
 });
 async function createMap() {
   if (map) return;
-  const initialZoom = 13;
+  const initialZoom = 12;
 
   userLocation = await getUserLocation(); // AGORA ESPERA
   map = L.map("map", { trackResize: true, zoomControl: false }).setView(
