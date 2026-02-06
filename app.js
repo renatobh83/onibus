@@ -2296,7 +2296,7 @@ const InteractiveTrafficLegend = L.Control.extend({
 });
 async function createMap() {
   if (map) return;
-  const initialZoom = 12;
+  const initialZoom = 18;
 
   userLocation = await getUserLocation(); // AGORA ESPERA
   map = L.map("map", { trackResize: true, zoomControl: false }).setView(
@@ -2320,22 +2320,14 @@ async function createMap() {
       opacity: 0.7, // Deixa o mapa base parcialmente visível
     }
   );
-  const trafficLayerAbsolute = L.tileLayer(
-    "https://api.tomtom.com/traffic/map/4/tile/flow/absolute/{z}/{x}/{y}.png?key=" +
-      TOMTOM_API_KEY,
-    {
-      attribution: "Tráfego © TomTom",
-      tileSize: 512,
-      thickness: 20,
-    }
-  );
+
+
   // 3. CONTROLE DE CAMADAS: Permite ligar/desligar o tráfego (Opcional, mas recomendado)
   const baseLayers = {
     "Mapa Base": tileLayer,
   };
   const overlays = {
     "Condições do Tráfego": trafficLayer,
-    "Absoluto": trafficLayerAbsolute,
   };
   markersLayer.addTo(map);
   // Adicionar legenda interativa
